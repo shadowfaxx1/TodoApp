@@ -6,7 +6,7 @@ from django.utils import timezone
 
 class Task(models.Model):
     title = models.CharField(max_length=200)
-    published_date = models.DateField(timezone.now())
+    published_date = models.DateField(default=timezone.now)
     due_date = models.DateField()
     is_completed = models.BooleanField(default=False)
     def __str__(self):
@@ -19,7 +19,6 @@ class Task(models.Model):
 class content(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE) 
     description = models.TextField()
-    time = models.TimeField()
     
     def __str__(self):
         return self.description
