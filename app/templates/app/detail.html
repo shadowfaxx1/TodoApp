@@ -1,0 +1,15 @@
+{% extends "app/base.html" %}
+{% block title %} Details {% endblock %}
+
+{% block content %}
+    {% for i in context.content_set.all %}
+        <div>
+            <p>Task: {{ i.task }}</p>
+            <p>Description: {{ i.description }}</p>
+            <p>Time: {{ i.time }}</p>
+        </div>
+        <button class=>edit</button>
+    {% empty %}
+        <p>No content available.</p>
+    {% endfor %}
+{% endblock %}
