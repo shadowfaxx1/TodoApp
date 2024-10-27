@@ -3,56 +3,58 @@
 
 {% block content %}
 <div class="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-    <div class="w-full max-w-md bg-white shadow-lg rounded-lg">
-        <h2 class="text-2xl font-bold text-center my-4 text-gray-800">Today</h2>
-     
-        <div class="text-center mb-4">
-            <span class="text-md text-red-500 italic">Due {{ context.due_date }}</span>
+    <div class="w-full max-w-lg bg-white shadow-lg rounded-lg p-6">
+        
+        <!-- Task Title Section -->
+        <h2 class="text-3xl font-bold text-center mb-4 text-gray-800">{{ context.title }}</h2>
+        
+        <!-- Due Date -->
+        <div class="text-center mb-6">
+            <span class="text-md font-semibold text-red-500">Due: {{ context.due_date }}</span>
+            {% if context.due_date < timezone.now %}
+                <span class="block text-red-600 font-medium">Overdue</span>
+            {% endif %}
         </div>
 
-        <div class="mb-6">
-            <h3 class="text-gray-500 uppercase text-sm font-bold px-4">Pinned</h3>
-            <div class="flex items-start justify-between bg-yellow-100 rounded-lg p-4 mb-2">
+        <!-- Pinned Section -->
+        <div class="mb-6 px-4">
+            <h3 class="text-gray-500 uppercase text-sm font-bold mb-2">Pinned</h3>
+            <div class="flex items-start justify-between bg-yellow-100 rounded-lg p-4">
                 
+                <!-- Task Details and Edit Button -->
                 <div>
-                    
+                    <p class="text-sm text-gray-500 italic">Published: {{ context.published_date }}</p>
                     <span class="text-lg font-semibold text-gray-800">{{ context.title }}</span>
-                <span class="text-right text-sm text-gray-500 italic">Published: {{ context.published_date }}</span>
-
-                    <span>
-                        <a href="{% url 'app:task-create' %}" class="btn btn-secondary btn-sm">Edit</a>
-                    </span>
-                    
-                    <p class="text-gray-500">Lists</p>
-                    <span class="bg-red-200 text-red-600 text-xs px-2 py-1 rounded">Job</span>
-                    <ul class="space-y-4">
-                        <h1 class="py-2 text-md font-bold text-gray-500">Description</h1>
-                        {% for item in context.content_set.all %}
-                        <li class="rounded-lg py-2 px-1 flex items-start justify-between">
-                            <div class="flex-grow">
-                                <p class="text-gray-600">{{ item.description }}</p>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
                 </div>
+
+                <!-- Edit Button -->
+                <a href="{% url 'app:task-update' context.id %}" class="text-gray-700 p-2 bg-gray-200 rounded-full hover:bg-gray-300">
+                    ✏️
+                </a>
             </div>
         </div>
 
-        <!-- Overdue Section -->
+        <!-- Description Section -->
+        <div class="px-4">
+            <h3 class="text-md font-bold text-gray-500 mb-2">Description</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-gray-600">{{ context.description|default:"No description to show!" }}</p>
+            </div>
+        </div>
+
+        <!-- Overdue Section (only if overdue) -->
         {% if context.due_date < timezone.now %}
-        <span class="text-red-600 font-medium">Overdue</span>
-        <div class="mb-6">
-            <h3 class="text-gray-500 uppercase text-sm font-bold px-4">Overdue</h3>
+        <div class="mb-6 px-4">
+            <h3 class="text-gray-500 uppercase text-sm font-bold mt-6 mb-2">Overdue Tasks</h3>
             <ul class="space-y-4">
                 {% for item in context.content_set.all %}
                 <li class="bg-red-100 rounded-lg p-4 flex items-start justify-between">
-                    <div class="flex-grow">
-                        <span class="block text-lg font-semibold text-gray-800">{{ item.task }}</span>
+                    <div>
+                        <span class="text-lg font-semibold text-gray-800">{{ item.task }}</span>
                         <p class="text-gray-600">{{ item.description }}</p>
                     </div>
                     <div class="text-right">
-                        <span class="text-xs text-gray-500">{{ item.due_date }}</span>
+                        <span class="text-xs text-gray-500">Due: {{ item.due_date }}</span>
                         <p class="text-red-500 font-semibold text-sm mt-1">Overdue</p>
                     </div>
                 </li>
@@ -61,10 +63,6 @@
         </div>
         {% endif %}
 
-        <!-- Default Message if No Tasks -->
-        {% if not context.content_set.all %}
-            <div class="p-4 text-gray-400 text-center">No description to show!</div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

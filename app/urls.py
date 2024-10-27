@@ -12,5 +12,6 @@ urlpatterns = [
     path("task/<int:pk>/incomplete/", views.MarkTaskIncompletedView.as_view(), name="task-incomplete"),
     path('task/new/', views.TaskCreateView.as_view(), name='task-create'),
 
+
     
 ]

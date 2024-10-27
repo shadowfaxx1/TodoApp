@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.views import generic
-from .models import Task,content
+from .models import Task
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.http import HttpResponse
@@ -10,12 +10,18 @@ from .forms import TaskCreateForm
 from django.urls import reverse, reverse_lazy
 from django.views import View
 import datetime
+
 class TodoIndexView(generic.ListView):
     template_name = 'app/home.html'
     context_object_name = 'all_todo_items'
     model = Task
+
     def get_queryset(self):
-        return Task.objects.filter(published_date__lte =  timezone.now(),is_completed = False)[:5]
+        return Task.objects.filter(
+        published_date__lte=timezone.now(), 
+        is_completed=False
+    ).order_by('due_date')[:5]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['completed_tasks'] = Task.objects.filter(is_completed=True)  
@@ -24,18 +30,31 @@ class TodoIndexView(generic.ListView):
     
 class TaskCreateView(generic.CreateView):
     model = Task
+    # form_class = TaskCreateForm
+    template_name = 'app/task_form.html'
+    success_url = '/'
+    fields = ['title', 'due_date','description']
+    
+
+    def form_valid(self, form):
+        task = form.save(commit=False)
+        task.clean()
+        task.save()
+        return super().form_valid(form)
+
+
+class TaskUpdateView(generic.UpdateView):
+    model = Task
     form_class = TaskCreateForm
     template_name = 'app/task_form.html'
     success_url = '/'
-
+    fields = ['title', 'due_date','description']
+    
     def form_valid(self, form):
-        task = form.save(commit=False)  
-        task.save()  
-        content_instance = content(task =task, description=form.cleaned_data['description'])
-        content_instance.save()  
-        
+        task = form.save(commit=False)
+        task.clean()
+        task.save()
         return super().form_valid(form)
-
 
 class FullDetailView(generic.DetailView):
     template_name = 'app/detail.html'

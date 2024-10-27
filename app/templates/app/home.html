@@ -1,45 +1,50 @@
 {% extends "app/base.html" %}
 
-{% block title %} ToDo List {% endblock %}
+{% block title %}ToDo List{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl backdrop-hue-rotate-[15deg] hover:text-lg text-center">
+
+<h1 class="text-3xl hover:text-lg text-center">
     ToDo!
 </h1>
 
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
     <div class="w-full max-w-2xl p-6 bg-white shadow-lg rounded-lg">
         <h2 class="text-3xl font-bold text-center mb-4 text-gray-700">Todo List</h2>
+
+        <div class="mb-4 text-right">
+            <a href="{% url 'app:task-create' %}" class="btn btn-primary">Add +</a>
+        </div>
+
         <ul class="space-y-4">
-            <span>
-                <a href="{% url 'app:task-create' %}" class="btn btn-primary">Add +</a>
-            </span>
-
             {% for item in all_todo_items %}
-            {%if not item.is_completed %}
-            <div>
-                <li class="flex flex-col border-b pb-4 {% if item.due_date < timezone.now|date:'Y-m-d' %}bg-red-100{% endif %}">
-                    <div class="flex justify-between items-center">
+                {% if not item.is_completed %}
+                    <li class="flex items-center justify-between bg-white shadow-lg rounded-lg p-4 border {% if item.due_date < timezone.now|date:'Y-m-d' %}bg-red-100{% else %}bg-green-50{% endif %}">
+                        <form action="{% url 'app:task-complete' item.pk %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success mr-4 p-2 rounded-full bg-green-500 hover:bg-green-700 text-white font-bold">
+                                ✔️
+                            </button>
+                        </form>
                         <div class="flex-grow">
-                            <a href="{% url 'app:task-detail' item.id %}"><span class="text-xl text-gray-800 font-semibold">{{ item.title }}</span></a>
-                            <span class="text-sm text-gray-500">Published: {{ item.published_date }}</span>
-                            <span class="text-red-400 font-medium">Due: {{ item.due_date }}</span>
-                            {% if item.due_date < timezone.now|date:'Y-m-d' %}
-                                <span class="text-red-600 font-medium">Overdue</span>
-                            {% endif %}
+                            <a href="{% url 'app:task-detail' item.id %}" class="block text-xl font-semibold text-gray-800">{{ item.title }}</a>
+                            <div class="text-gray-500">
+                                <span>Published: {{ item.published_date }}</span>
+                                <span class="ml-4 {% if item.due_date < timezone.now|date:'Y-m-d' %}text-red-600{% else %}text-gray-500{% endif %}">
+                                    Due: {{ item.due_date }}
+                                </span>
+                                {% if item.due_date < timezone.now|date:'Y-m-d' %}
+                                    <span class="ml-2 text-red-600 font-medium">Overdue</span>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="ml-4">
-                            <form action="{% url 'app:task-complete' item.pk %}" method="post" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success btn-sm">Complete</button>
-                            </form>
-                            <a class="btn btn-danger btn-sm" href="{% url 'app:task-delete' item.id %}">Delete</a>
-                        </div>
-                    </div>
-                </li>
-            </div>
-            {% endif %}
 
+                        <!-- Delete button on the right -->
+                        <a href="{% url 'app:task-delete' item.id %}" class="ml-4 p-2 rounded-full bg-red-500 hover:bg-red-700 text-white font-bold">
+                            🗑️
+                        </a>
+                    </li>
+                {% endif %}
             {% endfor %}
         </ul>
 
@@ -47,12 +52,16 @@
         {% if completed_tasks %}
             <ul class="space-y-4">
                 {% for item in completed_tasks %}
-                    <li class="flex flex-col border-b pb-2">
+                    <li class="flex items-center justify-between bg-white shadow-lg rounded-lg p-4 border-b pb-2">
                         <span class="text-xl text-gray-500 font-semibold">{{ item.title }}</span>
                         <span class="text-sm text-gray-500">Published: {{ item.published_date }}</span>
+                        
+                        <!-- Mark incomplete button -->
                         <form action="{% url 'app:task-incomplete' item.pk %}" method="post" style="display:inline;">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Not Completed</button>
+                            <button type="submit" class="btn btn-warning btn-sm bg-yellow-500 hover:bg-yellow-700 text-white rounded-lg">
+                                Not Completed
+                            </button>
                         </form>
                     </li>
                 {% endfor %}
@@ -60,8 +69,6 @@
         {% else %}
             <strong class="text-gray-300">No completed tasks yet!</strong>
         {% endif %}
-        
     </div>
 </div>
-
 {% endblock %}
