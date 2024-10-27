@@ -9,13 +9,13 @@ from django.shortcuts import get_object_or_404
 from .forms import TaskCreateForm
 from django.urls import reverse, reverse_lazy
 from django.views import View
-
+import datetime
 class TodoIndexView(generic.ListView):
     template_name = 'app/home.html'
     context_object_name = 'all_todo_items'
     model = Task
-    # def get_queryset(self):
-    #     return Task.objects.filter(published_date__lte = timezone.now())[:5]
+    def get_queryset(self):
+        return Task.objects.filter(published_date__lte =  timezone.now(),is_completed = False)[:5]
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['completed_tasks'] = Task.objects.filter(is_completed=True)  
@@ -29,12 +29,10 @@ class TaskCreateView(generic.CreateView):
     success_url = '/'
 
     def form_valid(self, form):
-        task = form.save(commit=False)  # Save the task but don't commit yet
-        task.save()  # Now save the task instance
-        
-        # Create the content instance with the description from the form
-        content_instance = content(task=task, description=form.cleaned_data['description'])
-        content_instance.save()  # Save the content instance
+        task = form.save(commit=False)  
+        task.save()  
+        content_instance = content(task =task, description=form.cleaned_data['description'])
+        content_instance.save()  
         
         return super().form_valid(form)
 
