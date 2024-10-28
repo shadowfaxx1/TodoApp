@@ -30,7 +30,7 @@
                             <a href="{% url 'app:task-detail' item.id %}" class="block text-xl font-semibold text-gray-800">{{ item.title }}</a>
                             <div class="text-gray-500">
                                 <span>Published: {{ item.published_date }}</span>
-                                <span class="ml-4 {% if item.due_date < timezone.now|date:'Y-m-d' %}text-red-600{% else %}text-gray-500{% endif %}">
+                                <span class="ml-4 {% if item.due_date < timezone.now|date:'Y-m-d' %}text-red-600{% else %}text-red-500{% endif %}">
                                     Due: {{ item.due_date }}
                                 </span>
                                 {% if item.due_date < timezone.now|date:'Y-m-d' %}
