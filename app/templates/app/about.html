@@ -1,0 +1,36 @@
+{% extends "app/base.html" %}
+{% block title %}
+About Page or Beg? 
+{% endblock %} 
+
+{% block content %} 
+
+    <div class="animation-container">
+        <div class="text">Hire Me</div>
+    </div>
+
+    <script>
+        const container = document.querySelector('.animation-container');
+function createTextElement() {
+    const textClone = document.createElement('div');
+    textClone.className = 'text';
+    textClone.textContent = 'Hire Me';
+    textClone.style.left = Math.random() * 100 + 'vw';
+    textClone.style.top = Math.random() * 100 + 'vh';
+    textClone.style.fontSize = Math.random() * 3 + 7 + 'rem'; 
+    textClone.style.opacity = Math.random(); 
+    container.appendChild(textClone);
+
+    setTimeout(() => {
+        textClone.style.transition = 'opacity 3s';
+        textClone.style.opacity = '0';
+        setTimeout(() => {
+            textClone.remove();
+        }, 3000);
+    }, 500); 
+}
+setInterval(createTextElement, 1000);
+    </script>
+
+    
+{% endblock %} 

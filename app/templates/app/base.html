@@ -6,24 +6,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{% static 'blog/main.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'app/main.css' %}">
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
      
-     {% if title %}
-     <title>Todo App! - {%block title%}{%endblock%}</title>
- {% else %}
-     <title>Django Blog</title>
- {% endif %}
-
+    {% if title %}
+        <title>Todo App! - {% block title %}{% endblock %}</title>
+    {% else %}
+        <title>Django Blog</title>
+    {% endif %}
 </head>
 <body class="bg-white-100">
+    <!-- Navbar -->
     <header class="site-header">
-        <nav>
-            <a class="nav-link" href=""> Home </a>
-            <a class="nav-item nav-link" href="" > About </a>
-            <a class="nav-item nav-link" href=""> App </a>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+            <div class="container">
+                <a class="navbar-brand mr-4" href="{% url 'app:home' %}">Django Blog</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarToggle">
+                    <div class="navbar-nav mr-auto">
+                        <a class="nav-item nav-link" href="{% url 'app:home' %}">Home</a>
+                        <a class="nav-item nav-link" href="{% url 'app:about' %}">About</a>
+                    </div>
+                    <div class="navbar-nav">
+                        {% if user.is_authenticated %}
+                            <a class="nav-item nav-link" href="{% url 'app:task-create' %}">New Post</a>
+                            <a class="nav-item nav-link" href="#">{{ user.username }}</a>
+                            <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+                        {% else %}
+                            <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                            <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </nav>
     </header>
-    {%block content%}{%endblock%}
 
+    {% block content %}{% endblock %}
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3oAiT1Q8T+G2s9iL3h3s5KfT4+Q3G0zm5Xj7p7xw3c4da3RzFZkB8uvETj58CZ" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-3g9Wz0F6jC8FchD8H6t+z7A5cO2iLe0TfWlVIXCp6eFLm3n/2l/w+Gq1u1C0X+N" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8j3nL2y3/38aF2k/F1g1V4heCf8W8L7/A9KblH9JqzL1hfyV0V6" crossorigin="anonymous"></script>
 </body>
 </html>

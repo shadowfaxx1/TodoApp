@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
 # Create your models here.
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 class Task(models.Model):
     title = models.CharField(max_length=200)
@@ -11,6 +12,7 @@ class Task(models.Model):
     due_date = models.DateField()
     is_completed = models.BooleanField(default=False)
     description = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.title

@@ -14,7 +14,6 @@ def create_question(title,due_date,description):
 
 class TasksTestListView(TestCase):
     def test_due_date_lesser_than_published_date(self):
-        # Arrange
         task = create_question(title="Future question.", due_date=5,description="zoozoo")
         response = self.client.get('/')  
 
@@ -26,23 +25,20 @@ class TasksTestListView(TestCase):
         self.assertTrue(task_in_response.due_date < task_in_response.published_date)
         self.assertIs(task_in_response.due_date < task_in_response.published_date, False)
 
-class TaskModelTests(TestCase):
-    
-    def test_due_date_cannot_be_less_than_published_date(self):
-        future_date = timezone.now() + timezone.timedelta(days=1)
-        past_date = timezone.now() - timezone.timedelta(days=1)
-        task = Task(title="Valid Title", description="Valid description.", published_date=future_date, due_date=past_date)
-        
-        with self.assertRaises(ValidationError) as context:
-            task.clean()  
-        self.assertEqual(str(context.exception), "['Due date must be greater than or equal to the published date.']")
+    def test_due_date_lesser_than_published_date(self):
+        with self.assertRaises(ValidationError):
+            Task.objects.create(
+                title='Test Task 2',
+                due_date=timezone.now() - timezone.timedelta(days=1),  # Invalid past date
+                description='This should fail',
+                author=self.user 
+            )
+
 
     def test_title_length(self):
-        task = Task(title="123", description="Valid description.", published_date=timezone.now(), due_date=timezone.now() + timezone.timedelta(days=1))
-        
-        with self.assertRaises(ValidationError) as context:
-            task.clean()  
-        self.assertEqual(str(context.exception), "['Title must be at least 5 characters long.']")
+        task = Task(title='A' * 101, due_date=timezone.now() + timezone.timedelta(days=1), description='Too long title', author=self.user)
+        with self.assertRaises(ValidationError):
+            task.full_clean() 
 
     def test_description_length(self):
         task = Task(title="Valid Title", description="123456", published_date=timezone.now(), due_date=timezone.now() + timezone.timedelta(days=1))
@@ -51,5 +47,60 @@ class TaskModelTests(TestCase):
             task.clean()  
         self.assertEqual(str(context.exception), "['Description must be at least 10 characters long.']")
 
- 
-    
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+
+        self.task1 = Task.objects.create(
+            title='Test Task 1',
+            due_date=timezone.now() + timezone.timedelta(days=1), 
+            description='This is a test task',
+            author=self.user  # Set the author to the created user
+        )
+
+    def test_task_list_view(self):
+        response = self.client.get(reverse('app:home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'app/home.html')
+        self.assertContains(response, 'Test Task 1')
+        self.assertContains(response, 'Test Task 2')
+        self.assertQuerysetEqual(
+            response.context['all_todo_items'],
+            Task.objects.filter(author=self.user).order_by('due_date')[:5]
+        )
+
+    def test_task_create_view(self):
+        response = self.client.post(reverse('app:task_create'), {
+            'title': 'New Task',
+            'due_date': '2024-12-03 12:00:00',
+            'description': 'New task description',
+        })
+        self.assertEqual(response.status_code, 302)  # Should redirect after successful creation
+        self.assertTrue(Task.objects.filter(title='New Task').exists())
+
+    def test_task_update_view(self):
+        response = self.client.post(reverse('app:task_update', args=[self.task1.id]), {
+            'title': 'Updated Task',
+            'due_date': '2024-12-04 12:00:00',
+            'description': 'Updated description',
+        })
+        self.assertEqual(response.status_code, 302) 
+        self.task1.refresh_from_db()
+        self.assertEqual(self.task1.title, 'Updated Task')
+
+    def test_task_delete_view(self):
+        response = self.client.post(reverse('app:task_delete', args=[self.task1.id]))
+        self.assertEqual(response.status_code, 302)  
+        self.assertFalse(Task.objects.filter(id=self.task1.id).exists())
+
+    def test_mark_task_completed_view(self):
+        response = self.client.post(reverse('app:mark_task_completed', args=[self.task1.id]))
+        self.assertEqual(response.status_code, 302) 
+        self.task1.refresh_from_db()
+        self.assertTrue(self.task1.is_completed)
+
+    def test_mark_task_incompleted_view(self):
+        response = self.client.post(reverse('app:mark_task_incompleted', args=[self.task2.id]))
+        self.assertEqual(response.status_code, 302)  
+        self.task2.refresh_from_db()
+        self.assertFalse(self.task2.is_completed)
+
