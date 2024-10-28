@@ -1,5 +1,7 @@
 # Django Task Management Application
+Here is a video explaining my project:
 
+[![Watch the video](https://img.youtube.com/vi/qn8SFovjVmI/0.jpg)](https://youtu.be/qn8SFovjVmI)
 ## Overview
 
 This Django application is a task management tool that allows users to create, manage, and track tasks. It includes an authentication system to ensure that only authorized users can create and manage their tasks.
