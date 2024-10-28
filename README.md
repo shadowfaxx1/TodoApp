@@ -5,6 +5,18 @@
 This Django application is a task management tool that allows users to create, manage, and track tasks. It includes an authentication system to ensure that only authorized users can create and manage their tasks.
 
 ## Features
+- *CREATE* : Authenticated users can create a TASK with due Date.
+- *UPDATE* : ''  users can update the previous Tasks.
+- *DELETE* : '' users can delete when logged in to their profiles
+- *STATUS*: '' users can mark the task as *completed* or not *completed*
+- "ABOUTPAGE* : most important route
+
+##SETUP
+- run python3 install requirements.txt
+- if no database is created ```run python3 manage.py makemigrations``` followed by ```migrate```
+- after successfull DB initialization run python manage.py runserver and hop on to the ```127.0.0.1```
+- run test.py  by using ```python3 manage.py app test``` if you want to check for any flaws related to the request and functionality used client of django to test api "POST" and "GET"
+
 
 ### User Authentication
 
